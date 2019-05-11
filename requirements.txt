@@ -3,3 +3,4 @@ djangorestframework==3.9.3
 markdown
 django-filter
 pylint-django
+mysqlclient

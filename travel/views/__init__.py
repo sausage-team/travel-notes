@@ -1,2 +1,3 @@
-from .travelview import TravelView
-from .userview import UserView
+from .travelview import *
+from .userview import *
+from .articleview import *

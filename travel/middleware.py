@@ -3,16 +3,12 @@ from django.utils.deprecation import MiddlewareMixin
 import re
 
 EXCLUDE_URL = [
-  '/register',
-  '/login',
-  '/travel',
-  '/api',
+  '/api/user',
+  '/api/travel',
   '/favicon.ico'
 ]
-INCLUDE_URL = []
 
 exclued_path = [re.compile(item) for item in EXCLUDE_URL]
-include_path = [re.compile(item) for item in INCLUDE_URL]
 
 class UserAuthMiddleware(MiddlewareMixin):
   def process_request(self, request):

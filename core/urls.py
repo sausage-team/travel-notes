@@ -15,6 +15,6 @@ Including another URLconf
 """
 from django.urls import path, include
 urlpatterns = [
-    path('travel/', include('travel.urls'), name='travel'),
+    path('api/', include('travel.urls'), name='travel'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
