@@ -1,51 +1,63 @@
 """
 Article Operation
 """
+from logging import getLogger
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
 from travel.serializers import ArticleSerializer
 from travel.models import Article
 from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
+logger = getLogger(__name__)
 
-class ArticleView(APIView):
-    """
-    Basic Article View
-    """
-    def get_article(self, id):
+class ArticleBase(object):
+    def get_article(self, pk):
         """
         Find article by id
         """
         try:
-            return Article.objects.get(id=id)
+            return Article.objects.get(id=pk)
         except Article.DoesNotExist:
             return None
-    
-    def get(self, request, id):
+    def get_article_by_uid(self, uid):
+        """
+        Find articles by uid
+        """
+        try:
+            return Article.objects.filter(user_id=uid)
+        except Article.DoesNotExist:
+            return []
+
+class ArticleView(ArticleBase, APIView):
+    """
+    Basic Article View
+    """
+    def get(self, request, pk):
         """
         Request article By id
         """
-        article = self.get_article(id)
+        article = self.get_article(pk)
         if (article is None):
             return FAIL
 
         serializer = ArticleSerializer(data=article)
         return Response(Wrapper(data=serializer.data))
     
-    def delete(self, request, id):
+    def delete(self, request, pk):
         """
         Delete article by id
         """
-        article = self.get_article(id)
+        article = self.get_article(pk)
         if (article is None):
             return FAIL
 
         article.delete()
     
-    def put(self, request, id):
+    def put(self, request, pk):
         """
         Update article by id
         """
-        article = self.get_article(id)
+        article = self.get_article(pk)
         if (article is None):
             return FAIL
         
@@ -60,9 +72,17 @@ class ArticlePost(ArticleView):
         """
         Create article by id
         """
-        serializer = ArticleSerializer(data=request.data['data'])
+        uid = request.session.get('uid', None)
+
+        if uid is None:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        article = request.data['data']
+        serializer = ArticleSerializer(data=article)
         if serializer.is_valid():
-            serializer.save()
+            article = serializer.save()
+            article.user_id = uid
+            article.save()
             return Response(Wrapper(data=serializer.data))
         return FAIL
 
