@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from travel.bean.constant import ArticleStatus
 from . import User
 
 # Create your models here.
@@ -10,6 +11,7 @@ class Article(models.Model):
     created_time = models.DateTimeField(default = timezone.now)
     updated_time = models.DateTimeField(auto_now = True)
     user = models.ForeignKey(User, related_name="articles", on_delete=models.SET_NULL, null=True)
+    status = models.IntegerField(default=ArticleStatus.WAIT)
 
     class Meta:
         ordering = ('created_time',)

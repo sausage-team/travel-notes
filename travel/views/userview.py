@@ -49,6 +49,7 @@ class UserView(UserBase, APIView):
         serializer = UserSerializer(user)
         return Response(Wrapper(data=serializer.data))
 
+    @Authorization
     def put(self, request, uid):
         """
         Update User By uid
@@ -63,6 +64,7 @@ class UserView(UserBase, APIView):
             return SUCCESS
         return FAIL
 
+    @Authorization
     def post(self, request):
         """
         Create User
@@ -74,6 +76,7 @@ class UserView(UserBase, APIView):
         else:
             logger.info(serializer.errors)
         return FAIL
+    @Authorization
     def delete(self, request):
         """
         Delete User (Don't Allow)
@@ -126,6 +129,7 @@ class UserLogout(UserView):
     """
     User Logout
     """
+    @Authorization
     def get(self, request):
         uid = request.session.get('uid', default=None)
         if uid:

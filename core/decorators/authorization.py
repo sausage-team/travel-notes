@@ -11,7 +11,6 @@ class Authorization(object):
         request = args[1]
         if isinstance(request, Request):
             uid = request.session.get('uid', None)
-            print(uid)
             if uid:
                 return self._func(*args, **kwargs)
         return Response(status=status.HTTP_403_FORBIDDEN)

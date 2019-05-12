@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from travel.serializers import ArticleSerializer
 from travel.models import Article
 from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
+from core.decorators.authorization import Authorization
+from travel.bean.constant import ArticleStatus
 logger = getLogger(__name__)
 
 class ArticleBase(object):
@@ -27,6 +29,13 @@ class ArticleBase(object):
             return Article.objects.filter(user_id=uid)
         except Article.DoesNotExist:
             return []
+    def articles(self):
+        # TODO
+        # Paginator
+        try:
+            return Article.objects.all()
+        except Article.DoesNotExist:
+            return []
 
 class ArticleView(ArticleBase, APIView):
     """
@@ -43,6 +52,7 @@ class ArticleView(ArticleBase, APIView):
         serializer = ArticleSerializer(data=article)
         return Response(Wrapper(data=serializer.data))
     
+    @Authorization
     def delete(self, request, pk):
         """
         Delete article by id
@@ -50,9 +60,13 @@ class ArticleView(ArticleBase, APIView):
         article = self.get_article(pk)
         if (article is None):
             return FAIL
-
-        article.delete()
+        uid = request.session.get('uid', None)
+        if uid == article.user_id:
+            article.delete()
+            return SUCCESS
+        return FAIL
     
+    @Authorization
     def put(self, request, pk):
         """
         Update article by id
@@ -60,7 +74,10 @@ class ArticleView(ArticleBase, APIView):
         article = self.get_article(pk)
         if (article is None):
             return FAIL
-        
+        uid = request.session.get('uid', None)
+        if uid != article.user_id:
+            return FAIL
+
         serializer = ArticleSerializer(article, data=request.data['data'])
         if serializer.is_valid():
             serializer.save()
@@ -68,6 +85,7 @@ class ArticleView(ArticleBase, APIView):
         return FAIL
 
 class ArticlePost(ArticleView):
+    @Authorization
     def post(self, request):
         """
         Create article by id
@@ -91,7 +109,7 @@ class ArticleList(ArticleView):
         """
         Request Article List
         """
-        articles = Article.objects.all()[offset:offset+limit]
+        articles = Article.objects.filter(status = ArticleStatus.PASS)[offset:offset+limit]
         serializer = ArticleSerializer(articles, many=True)
         return Response(Wrapper(data=serializer.data))
 

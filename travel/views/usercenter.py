@@ -7,18 +7,44 @@ from travel.serializers import UserSerializer, ArticleSerializer
 from travel.views import UserBase, ArticleBase
 from travel.models import User, Article
 from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
+from travel.bean.constant import ArticleStatus, Role
+from core.decorators.authorization import Authorization
 logger = getLogger(__name__)
 
 class UserCenterBase(UserBase, ArticleBase):
-   pass
+    def isAdmin(self, request):
+        uid = request.session.get('uid', None)
+        user = super().get_user_by_id(uid)
+        if user.role == Role.ADMIN:
+            return True
+        return False
 
-class UserCenter(UserCenterBase, APIView):
+class UserCenterArticleList(UserCenterBase, APIView):
+    @Authorization
     def get(self, request):
         uid = request.session.get('uid', None)
-        if uid is None:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         arts = super().get_article_by_uid(uid)
         serializer = ArticleSerializer(arts, many=True)
         return Response(data=serializer.data)
+
+class AdminCenterArticleList(UserCenterBase, APIView):
+    @Authorization
+    def get(self, request):
+        if super().isAdmin(request):
+            serializer = ArticleSerializer(super().articles(), many=True)
+            return Response(data=serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+class AdminCenterArticleCheck(UserCenterBase, APIView):
+    @Authorization
+    def put(self, request, pk):
+        if super().isAdmin(request):
+            article = super().get_article(pk)
+            if article.status == ArticleStatus.WAIT:
+                article.status = ArticleStatus.PASS
+                article.save()
+                return SUCCESS
+            return FAIL
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
     
