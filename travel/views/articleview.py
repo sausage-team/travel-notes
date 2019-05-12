@@ -46,7 +46,8 @@ class ArticleView(ArticleBase, APIView):
         Request article By id
         """
         article = self.get_article(pk)
-        if (article is None):
+        if (article is None
+            || article.status == ArticleStatus.WAIT):
             return FAIL
 
         serializer = ArticleSerializer(data=article)

@@ -65,19 +65,7 @@ class UserView(UserBase, APIView):
         return FAIL
 
     @Authorization
-    def post(self, request):
-        """
-        Create User
-        """
-        serializer = UserSerializer(data=request.data['data'])
-        if serializer.is_valid():
-            serializer.save()
-            return Response(Wrapper(data=serializer.data))
-        else:
-            logger.info(serializer.errors)
-        return FAIL
-    @Authorization
-    def delete(self, request):
+    def delete(self, request, uid):
         """
         Delete User (Don't Allow)
         """
@@ -88,10 +76,20 @@ class UserRegister(UserView):
     User Register
     """
     def post(self, request):
+        """
+        Create User
+        """
         data = request.data['data']
         if self.get_user_by_np(data['username'],data['password']):
             return FAIL
-        return super().post(request)
+
+        serializer = UserSerializer(data=request.data['data'])
+        if serializer.is_valid():
+            serializer.save()
+            return Response(Wrapper(data=serializer.data))
+        else:
+            logger.info(serializer.errors)
+        return FAIL
 
 class UserForgetPwd(UserView):
     """
@@ -103,6 +101,7 @@ class UserForgetPwd(UserView):
             return Response(status=status.HTTP_403_FORBIDDEN)
         user = self.get_user_by_id(uid)
         data = request.data['data']
+
         if user.id_card == data['id_card']:
             user.password = data['password']
             user.save()
