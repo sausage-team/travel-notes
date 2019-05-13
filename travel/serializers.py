@@ -15,3 +15,9 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ('id', 'title', 'content', 'created_time', 'updated_time', 'user', 'status')
+    
+    def to_representation(self, instance):
+        representation = super(ArticleSerializer, self).to_representation(instance)
+        representation['created_time'] = int(round(instance.created_time.timestamp() * 1000))
+        representation['updated_time'] = int(round(instance.updated_time.timestamp() * 1000))
+        return representation
