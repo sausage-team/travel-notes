@@ -14,6 +14,6 @@ urlpatterns = [
     path('article', views.ArticlePost.as_view()),
     path('article/<int:offset>/<int:limit>', views.ArticleList.as_view()),
     path('ucenter/articles', views.UserCenterArticleList.as_view()),
-    path('admin/articles', views.AdminCenterArticleList.as_view()),
+    path('admin/articles/<int:offset>/<int:limit>', views.AdminCenterArticleList.as_view()),
     path('admin/article/<int:pk>', views.AdminCenterArticleCheck.as_view())
 ]

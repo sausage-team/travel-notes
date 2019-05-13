@@ -91,6 +91,12 @@ class UserRegister(UserView):
             logger.info(serializer.errors)
         return FAIL
 
+class UserCaptcha(UserView):
+    """
+    Captcha
+    """
+    pass
+
 class UserForgetPwd(UserView):
     """
     Forget Password
@@ -133,5 +139,6 @@ class UserLogout(UserView):
         uid = request.session.get('uid', default=None)
         if uid:
             request.session['uid'] = None
+            request.session.clear()
             return SUCCESS
         return FAIL

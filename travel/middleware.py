@@ -5,6 +5,7 @@ import re
 EXCLUDE_URL = [
     r'^\/api\/user(\/[0-9a-zA-Z-]+)?$',
     r'^\/api\/article(\/.*)?$',
+    r'^\/captcha(\/.*)?$',
     r'/favicon.ico'
 ]
 

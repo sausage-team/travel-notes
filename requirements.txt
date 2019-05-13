@@ -1,6 +1,7 @@
 Django==2.2.1
 djangorestframework==3.9.3
-markdown
-django-filter
-pylint-django
-mysqlclient
+django-simple-captcha==0.5.11
+markdown==2.6.11
+django-filter==2.1.0
+pylint-django==2.0.9
+mysqlclient==1.4.2.post1

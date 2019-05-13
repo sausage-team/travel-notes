@@ -29,9 +29,9 @@ class UserCenterArticleList(UserCenterBase, APIView):
 
 class AdminCenterArticleList(UserCenterBase, APIView):
     @Authorization
-    def get(self, request):
+    def get(self, request, offset, limit):
         if super().isAdmin(request):
-            serializer = ArticleSerializer(super().articles(), many=True)
+            serializer = ArticleSerializer(super().articles(offset, limit), many=True)
             return Response(data=serializer.data)
         return Response(status=status.HTTP_403_FORBIDDEN)
 

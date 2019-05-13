@@ -29,11 +29,13 @@ class ArticleBase(object):
             return Article.objects.filter(user_id=uid)
         except Article.DoesNotExist:
             return []
-    def articles(self):
+    def articles(self, offset=0, limit=10, status = None):
         # TODO
         # Paginator
         try:
-            return Article.objects.all()
+            if status:
+                return Article.objects.filter(status=status)[offset:offset+limit]
+            return Article.objects.all()[offset:offset+limit]
         except Article.DoesNotExist:
             return []
 
