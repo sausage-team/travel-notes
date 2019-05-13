@@ -5,6 +5,7 @@ from django.urls import path
 from travel import views
 
 urlpatterns = [
+    path('captcha', views.CaptchView.as_view()),
     path('user/login', views.UserLogin.as_view()),
     path('user/logout', views.UserLogout.as_view()),
     path('user/register', views.UserRegister.as_view()),
@@ -15,5 +16,5 @@ urlpatterns = [
     path('article/<int:offset>/<int:limit>', views.ArticleList.as_view()),
     path('ucenter/articles', views.UserCenterArticleList.as_view()),
     path('admin/articles/<int:offset>/<int:limit>', views.AdminCenterArticleList.as_view()),
-    path('admin/article/<int:pk>', views.AdminCenterArticleCheck.as_view())
+    path('admin/article/<int:pk>', views.AdminCenterArticleCheck.as_view()),
 ]

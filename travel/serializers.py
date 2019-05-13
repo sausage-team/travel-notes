@@ -4,7 +4,7 @@ from travel.models import User, Article
 class UserSerializer (serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'uid', 'username', 'password', 'id_card', 'role')
+        fields = ('id', 'uid', 'username', 'password', 'id_card', 'role', 'icon')
 
 class ArticleSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
