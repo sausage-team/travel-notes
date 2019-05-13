@@ -10,8 +10,3 @@ class ArticleWrapper(Wrapper):
         else:
             self.remove_key(data)
         super().__init__(status, data)
-    
-    def remove_key(self, data):
-        for k in self.filter:
-            if k in data:
-               data.__delitem__(k)
