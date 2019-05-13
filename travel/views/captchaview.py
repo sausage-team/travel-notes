@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from travel.serializers import UserSerializer
 from travel.models import User
-from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
 from core.decorators.authorization import Authorization
 from travel.util.captcha import create_validate_code
 logger = getLogger(__name__)

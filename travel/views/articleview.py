@@ -5,11 +5,12 @@ from logging import getLogger
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from core.bean.wrapper import Wrapper, SUCCESS, FAIL
+from core.decorators.authorization import Authorization
 from travel.serializers import ArticleSerializer
 from travel.models import Article
-from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
-from core.decorators.authorization import Authorization
 from travel.bean.constant import ArticleStatus
+from travel.bean.articlewrapper import ArticleWrapper
 logger = getLogger(__name__)
 
 class ArticleBase(object):
@@ -53,7 +54,7 @@ class ArticleView(ArticleBase, APIView):
             return FAIL
 
         serializer = ArticleSerializer(data=article)
-        return Response(Wrapper(data=serializer.data))
+        return Response(ArticleWrapper(data=serializer.data))
     
     @Authorization
     def delete(self, request, pk):
@@ -104,7 +105,7 @@ class ArticlePost(ArticleView):
             article = serializer.save()
             article.user_id = uid
             article.save()
-            return Response(Wrapper(data=serializer.data))
+            return Response(ArticleWrapper(data=serializer.data))
         return FAIL
 
 class ArticleList(ArticleView):
@@ -114,5 +115,5 @@ class ArticleList(ArticleView):
         """
         articles = Article.objects.filter(status = ArticleStatus.PASS)[offset:offset+limit]
         serializer = ArticleSerializer(articles, many=True)
-        return Response(Wrapper(data=serializer.data))
+        return Response(ArticleWrapper(data=serializer.data))
 

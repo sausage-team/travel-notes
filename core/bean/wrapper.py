@@ -6,23 +6,32 @@ class Wrapper(dict):
     """
     Wrapper Dict
     """
+    STATUS = 'status'
+    DATA = 'data'
+    filter = []
     def __init__(self, status=0, data={}, default=None):
         """
         Initializer
         """
         super().__init__(self)
-        self.__setitem__('status', status)
-        self.__setitem__('data', data)
+        super().__setitem__(Wrapper.STATUS, status)
+        super().__setitem__(Wrapper.DATA, data)
         self.default = default
 
     def __getitem__(self, key):
         """
         Overide __getitem__
         """
+        print("我被调用啦 Wrapper")
         try:
-            return self.__getitem__('key')
+            return super().__getitem__(key)
         except KeyError:
             return self.default
+    
+    def remove_key(self, data):
+        for k in self.filter:
+            if k in data:
+               data.__delitem__(k)
 
 SUCCESS = Response(Wrapper(0, data={'msg':'ok'}))
 FAIL = Response(Wrapper(-1, data={'msg':'error'}))

@@ -6,27 +6,21 @@ from django.http import HttpResponse, Http404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from core.bean.wrapper import Wrapper, SUCCESS, FAIL
+from core.decorators.authorization import Authorization
 from travel.serializers import UserSerializer
 from travel.models import User
-from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
-from core.decorators.authorization import Authorization
+from travel.bean.userwrapper import UserWrapper
+from travel.bean.articlewrapper import ArticleWrapper
 logger = getLogger(__name__)
 
 class UserBase(object):
-    def get_user_by_id(self, id):
-        """
-        Find User By id
-        """
-        try:
-            return User.objects.get(id=id)
-        except User.DoesNotExist:
-            return None
     def get_user(self, uid):
         """
         Find User by uid
         """
         try:
-            return User.objects.get(uid=uid)
+            return User.objects.get(id=uid)
         except User.DoesNotExist:
             return None
     def get_user_by_np(self, username, pwd):
@@ -47,7 +41,7 @@ class UserView(UserBase, APIView):
         """
         user = self.get_user(uid)
         serializer = UserSerializer(user)
-        return Response(Wrapper(data=serializer.data))
+        return Response(UserWrapper(data=serializer.data))
 
     @Authorization
     def put(self, request, uid):
@@ -86,7 +80,7 @@ class UserRegister(UserView):
         serializer = UserSerializer(data=request.data['data'])
         if serializer.is_valid():
             serializer.save()
-            return Response(Wrapper(data=serializer.data))
+            return Response(UserWrapper(data=serializer.data))
         else:
             logger.info(serializer.errors)
         return FAIL
@@ -105,7 +99,7 @@ class UserForgetPwd(UserView):
         uid = request.session.get('uid', None)
         if uid is None:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        user = self.get_user_by_id(uid)
+        user = self.get_user(uid)
         data = request.data['data']
 
         if user.id_card == data['id_card']:

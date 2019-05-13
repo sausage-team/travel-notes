@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from travel.serializers import UserSerializer, ArticleSerializer
 from travel.views import UserBase, ArticleBase
 from travel.models import User, Article
-from travel.bean.wrapper import Wrapper, SUCCESS, FAIL
+from core.bean.wrapper import Wrapper, SUCCESS, FAIL
 from travel.bean.constant import ArticleStatus, Role
 from core.decorators.authorization import Authorization
 logger = getLogger(__name__)
@@ -14,7 +14,7 @@ logger = getLogger(__name__)
 class UserCenterBase(UserBase, ArticleBase):
     def isAdmin(self, request):
         uid = request.session.get('uid', None)
-        user = super().get_user_by_id(uid)
+        user = super().get_user(uid)
         if user.role == Role.ADMIN:
             return True
         return False
