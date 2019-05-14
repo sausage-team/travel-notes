@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from travel.models import User, Article
-
+from travel.models import User, Article, ArticleImage
 class UserSerializer (serializers.ModelSerializer):
     class Meta:
         model = User
@@ -21,3 +20,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         representation['created_time'] = int(round(instance.created_time.timestamp() * 1000))
         representation['updated_time'] = int(round(instance.updated_time.timestamp() * 1000))
         return representation
+
+class ArticleImageSerializer(serializers.ModelSerializer):
+    img = serializers.CharField(required=False)
+    class Meta:
+        model = ArticleImage
+        fields = ('id', 'article_id', 'img')
+
+

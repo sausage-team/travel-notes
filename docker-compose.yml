@@ -1,10 +1,17 @@
 version: "3"
 services:
   mysql:
-    build: .
+    build: ./dockerfiles/mysql/
     environment:
       MYSQL_ROOT_PASSWORD: '123456'
     ports:
       - '13306:3306'
+    deploy:
+      replicas: 1
+  
+  nginx:
+    build: ./dockerfiles/nginx/
+    ports:
+      - '8088:80'
     deploy:
       replicas: 1

@@ -1,16 +1,19 @@
 """
 Article Operation
 """
+from base64 import b64decode
 from logging import getLogger
+from django.http import HttpResponse, Http404
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from core.bean.wrapper import Wrapper, SUCCESS, FAIL
 from core.decorators.authorization import Authorization
-from travel.serializers import ArticleSerializer
-from travel.models import Article
+from travel.serializers import ArticleSerializer, ArticleImageSerializer
+from travel.models import Article, ArticleImage
 from travel.bean.constant import ArticleStatus
-from travel.bean.articlewrapper import ArticleWrapper
+from travel.bean.articlewrapper import ArticleWrapper, PreviewArticleWrapper
+from .imagetransfer import ImageTransfer
 logger = getLogger(__name__)
 
 class ArticleBase(object):
@@ -31,14 +34,19 @@ class ArticleBase(object):
         except Article.DoesNotExist:
             return []
     def articles(self, offset=0, limit=10, status = None):
-        # TODO
-        # Paginator
         try:
             if status:
                 return Article.objects.filter(status=status)[offset:offset+limit]
             return Article.objects.all()[offset:offset+limit]
         except Article.DoesNotExist:
             return []
+    
+    def get_article_cover(self, pk):
+        try:
+            return ArticleImage.objects.get(id = pk)
+        except ArticleImage.DoesNotExist:
+            return None
+
 
 class ArticleView(ArticleBase, APIView):
     """
@@ -115,5 +123,33 @@ class ArticleList(ArticleView):
         """
         articles = Article.objects.filter(status = ArticleStatus.PASS)[offset:offset+limit]
         serializer = ArticleSerializer(articles, many=True)
-        return Response(ArticleWrapper(data=serializer.data))
+        return Response(PreviewArticleWrapper(data=serializer.data))
 
+
+class ArticleImageGet(ArticleView):
+    def get(self, request, pk):
+        cover = self.get_article_cover(pk)
+        serializer = ArticleImageSerializer(cover)
+        data = serializer.data
+        img = b64decode(data['cover'])
+        return HttpResponse(img, content_type=f"image/{data['img_type']}")
+
+class ArticleImagePost(ImageTransfer, ArticleView):
+    def post(self, request):
+        img = request.FILES.get('upload', None)
+        if img is None:
+            return FAIL
+        b64_img = self.img2base64(img)
+        img_type = img.name.split('.')[-1]
+        cover = ArticleImage.objects.create(
+            cover=b64_img,
+            img_type=img_type
+        )
+        return Response(
+            {
+                'fileName':'Sausage',
+                'uploaded':1,
+                # 'id': cover.id,
+                'url': f'/api/article/cover/{cover.id}'
+            }
+        )
