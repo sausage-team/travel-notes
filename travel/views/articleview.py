@@ -33,7 +33,7 @@ class ArticleBase(object):
             return Article.objects.filter(user_id=uid)
         except Article.DoesNotExist:
             return []
-    def articles(self, offset=0, limit=10, status = None):
+    def articles(self, offset=0, limit=10, status = 1):
         try:
             if status:
                 return Article.objects.filter(status=status)[offset:offset+limit]
@@ -61,7 +61,7 @@ class ArticleView(ArticleBase, APIView):
             or article.status == ArticleStatus.WAIT):
             return FAIL
 
-        serializer = ArticleSerializer(data=article)
+        serializer = ArticleSerializer(article)
         return Response(ArticleWrapper(data=serializer.data))
     
     @Authorization
@@ -129,7 +129,23 @@ class ArticleList(ArticleView):
             'articles':serializer.data,
             'count': count
         }))
+    
+    def post(self, request, offset, limit):
+        """
+        Request Article List by
+        """
+        data = request.data['data']
+        search = data['search']
+        if search == '':
+            return self.get(request, offset, limit)
 
+        data = Article.objects.filter(status = ArticleStatus.PASS,title__icontains=search)
+        articles = data[offset:offset+limit]
+        serializer = PreviewArticleSerializer(articles, many=True)
+        return Response(ArticleWrapper(data={
+            'articles':serializer.data,
+            'count': data.count()
+        }))
 
 class ArticleImageGet(ArticleView):
     def get(self, request, pk):
