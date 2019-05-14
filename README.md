@@ -1,0 +1,20 @@
+###描述:
+
+游记服务端
+
+###环境依赖:
+
+1. python == 3.6
+2. pip3 == 9.0.1
+3. docker
+
+###安装:
+安装前请预留8000, 8088, 13306端口
+
+0.  命令行进入`project`根目录下依次执行
+1.  `pip install -r requirements.txt`
+2.  `docker-compose up -d`
+3.  `python manage.py makemigrations`
+4.  `python manage.py migrate` 这一步如果报错无视
+5.  启动服务 `python manage.py runserver 0.0.0.0:8000`
+
