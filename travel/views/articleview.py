@@ -131,7 +131,7 @@ class ArticleImageGet(ArticleView):
         cover = self.get_article_cover(pk)
         serializer = ArticleImageSerializer(cover)
         data = serializer.data
-        img = b64decode(data['cover'])
+        img = b64decode(data['img'])
         return HttpResponse(img, content_type=f"image/{data['img_type']}")
 
 class ArticleImagePost(ImageTransfer, ArticleView):
@@ -142,14 +142,14 @@ class ArticleImagePost(ImageTransfer, ArticleView):
         b64_img = self.img2base64(img)
         img_type = img.name.split('.')[-1]
         cover = ArticleImage.objects.create(
-            cover=b64_img,
+            img=b64_img,
             img_type=img_type
         )
         return Response(
             {
                 'fileName':'Sausage',
                 'uploaded':1,
-                # 'id': cover.id,
+                'id': cover.id,
                 'url': f'/api/article/cover/{cover.id}'
             }
         )

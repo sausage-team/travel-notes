@@ -25,6 +25,6 @@ class ArticleImageSerializer(serializers.ModelSerializer):
     img = serializers.CharField(required=False)
     class Meta:
         model = ArticleImage
-        fields = ('id', 'article_id', 'img')
+        fields = ('id', 'article_id', 'img', 'img_type')
 
 
