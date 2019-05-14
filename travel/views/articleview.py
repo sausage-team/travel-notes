@@ -9,10 +9,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from core.bean.wrapper import Wrapper, SUCCESS, FAIL
 from core.decorators.authorization import Authorization
-from travel.serializers import ArticleSerializer, ArticleImageSerializer
+from travel.serializers import ArticleSerializer, ArticleImageSerializer, PreviewArticleSerializer
 from travel.models import Article, ArticleImage
 from travel.bean.constant import ArticleStatus
-from travel.bean.articlewrapper import ArticleWrapper, PreviewArticleWrapper
+from travel.bean.articlewrapper import ArticleWrapper
 from .imagetransfer import ImageTransfer
 logger = getLogger(__name__)
 
@@ -121,9 +121,14 @@ class ArticleList(ArticleView):
         """
         Request Article List
         """
-        articles = Article.objects.filter(status = ArticleStatus.PASS)[offset:offset+limit]
-        serializer = ArticleSerializer(articles, many=True)
-        return Response(PreviewArticleWrapper(data=serializer.data))
+        data = Article.objects.filter(status = ArticleStatus.PASS)
+        count = data.count()
+        articles = data[offset:offset+limit]
+        serializer = PreviewArticleSerializer(articles, many=True)
+        return Response(ArticleWrapper(data={
+            'articles':serializer.data,
+            'count': count
+        }))
 
 
 class ArticleImageGet(ArticleView):
@@ -135,6 +140,7 @@ class ArticleImageGet(ArticleView):
         return HttpResponse(img, content_type=f"image/{data['img_type']}")
 
 class ArticleImagePost(ImageTransfer, ArticleView):
+    @Authorization
     def post(self, request):
         img = request.FILES.get('upload', None)
         if img is None:

@@ -16,6 +16,7 @@ class ArticleStatus(object):
 defaultIcon = ''
 with open(os.path.join(assets_path, 'icon.png'), 'rb') as fin:
     defaultIcon = str(base64.b64encode(fin.read()), 'utf-8')
+    defaultIcon = f'data:image/png;base64,{defaultIcon}'
 
 class Icon(object):
     DEFAULT_ICON = defaultIcon

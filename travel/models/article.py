@@ -8,6 +8,8 @@ from . import User
 class Article(models.Model):
     title = models.CharField(max_length=100, blank=True, default='')
     author = models.CharField(max_length=10,default='')
+    cover = models.CharField(max_length=100,default='')
+    preview = models.TextField(default='')
     content = models.TextField(default='')
     created_time = models.DateTimeField(default = timezone.now)
     updated_time = models.DateTimeField(auto_now = True)

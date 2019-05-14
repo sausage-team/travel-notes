@@ -3,7 +3,7 @@ from travel.models import User, Article, ArticleImage
 class UserSerializer (serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'uid', 'username', 'password', 'id_card', 'role', 'icon')
+        fields = ('id', 'username', 'password', 'phone', 'role', 'icon')
 
 class ArticleSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
@@ -13,13 +13,21 @@ class ArticleSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Article
-        fields = ('id', 'title', 'content', 'created_time', 'updated_time', 'user', 'status')
+        fields = ('id', 'title', 'cover', 'author', 'preview', 'content', 'created_time', 'updated_time', 'user', 'status')
     
     def to_representation(self, instance):
         representation = super(ArticleSerializer, self).to_representation(instance)
         representation['created_time'] = int(round(instance.created_time.timestamp() * 1000))
         representation['updated_time'] = int(round(instance.updated_time.timestamp() * 1000))
         return representation
+
+class PreviewArticleSerializer(ArticleSerializer):
+    class Meta:
+        model = Article
+        exclude = ('content',)
+    
+    # def get_fields(self):
+    #     pass
 
 class ArticleImageSerializer(serializers.ModelSerializer):
     img = serializers.CharField(required=False)

@@ -1,7 +1,7 @@
 from core.bean.wrapper import *
 
 class UserWrapper(Wrapper):
-    filter = ['id_card', 'password']
+    filter = ['phone', 'password']
 
     def __init__(self, status=0, data={}):
         if isinstance(data, list):

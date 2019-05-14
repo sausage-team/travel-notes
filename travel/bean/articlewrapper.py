@@ -10,6 +10,3 @@ class ArticleWrapper(Wrapper):
         else:
             self.remove_key(data)
         super().__init__(status, data)
-
-class PreviewArticleWrapper(ArticleWrapper):
-    filter = ['content']

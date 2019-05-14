@@ -32,6 +32,15 @@ class UserBase(object):
         except User.DoesNotExist as exp:
             logger.error(exp)
             return None
+    def get_user_by_name(self, username):
+        """
+        Find User by username
+        """
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist as exp:
+            logger.error(exp)
+            return None
 
 class UserView(UserBase, APIView):
     @Authorization
@@ -74,7 +83,7 @@ class UserRegister(UserView):
         Create User
         """
         data = request.data['data']
-        if self.get_user_by_np(data['username'],data['password']):
+        if self.get_user_by_name(data['username']):
             return FAIL
 
         serializer = UserSerializer(data=data)
@@ -102,7 +111,7 @@ class UserForgetPwd(UserView):
         user = self.get_user(uid)
         data = request.data['data']
 
-        if user.id_card == data['id_card']:
+        if user.phone == data['phone']:
             user.password = data['password']
             user.save()
             return SUCCESS
@@ -121,8 +130,8 @@ class UserLogin(UserView):
         uid = request.session.get('uid', default=None)
         if uid is None:
             request.session['uid'] = user.id
-            return SUCCESS
-        return FAIL
+        serializer = UserSerializer(user)
+        return Response(UserWrapper(data=serializer.data))
 
 class UserLogout(UserView):
     """
