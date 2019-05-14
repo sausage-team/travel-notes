@@ -77,7 +77,7 @@ class UserRegister(UserView):
         if self.get_user_by_np(data['username'],data['password']):
             return FAIL
 
-        serializer = UserSerializer(data=request.data['data'])
+        serializer = UserSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(UserWrapper(data=serializer.data))
