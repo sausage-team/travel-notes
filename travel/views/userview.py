@@ -94,12 +94,6 @@ class UserRegister(UserView):
             logger.info(serializer.errors)
         return FAIL
 
-class UserCaptcha(UserView):
-    """
-    Captcha
-    """
-    pass
-
 class UserForgetPwd(UserView):
     """
     Forget Password

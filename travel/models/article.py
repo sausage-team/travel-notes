@@ -15,9 +15,9 @@ class Article(models.Model):
     updated_time = models.DateTimeField(auto_now = True)
     user = models.ForeignKey(User, related_name="articles", on_delete=models.SET_NULL, null=True)
     status = models.IntegerField(default=ArticleStatus.WAIT)
-
-    class Meta:
-        ordering = ('created_time',)
+    thumb = models.IntegerField(default=0)
+    frequency = models.IntegerField(default=0)
+    category = models.IntegerField(default=0)
 
 class ArticleImage(models.Model):
     img = models.TextField()

@@ -4,9 +4,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from core.bean.wrapper import Wrapper, SUCCESS, FAIL
-from travel.serializers import UserSerializer, ArticleSerializer, PreviewArticleSerializer
+from travel.serializers import UserSerializer, ArticleSerializer, PreviewArticleSerializer, CollectedArticleSerializer
 from travel.views import UserBase, ArticleBase
-from travel.models import User, Article
+from travel.models import User, Article, CollectedArticle
 from travel.bean.constant import ArticleStatus, Role
 from travel.bean.articlewrapper import ArticleWrapper
 
@@ -30,6 +30,16 @@ class UserCenterArticleList(UserCenterBase, APIView):
         return Response(ArticleWrapper(
             data = {'articles': serializer.data}
         ))
+
+class UserCenterCollectList(UserCenterBase, APIView):
+    @Authorization
+    def get(self, request):
+        uid = request.session.get('uid', None)
+        articles = CollectedArticle.objects.filter(user = uid)
+        serializer = CollectedArticleSerializer(articles, many=True)
+        return Response(ArticleWrapper(data = {
+            'articles': serializer.data
+        }))
 
 class AdminCenterArticleList(UserCenterBase, APIView):
     @Authorization
