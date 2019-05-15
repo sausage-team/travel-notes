@@ -1,4 +1,4 @@
-###描述:
+##描述:
 
 游记服务端
 
@@ -8,7 +8,7 @@
 2. pip3 == 9.0.1
 3. docker
 
-###安装:
+##安装:
 安装前请预留8000, 8088, 13306端口
 
 0.  命令行进入`project`根目录下依次执行
@@ -18,10 +18,10 @@
 4.  `python manage.py migrate` 这一步如果报错无视
 5.  启动服务 `python manage.py runserver 0.0.0.0:8000`
 
-### 账号默认管理员账号
+## 账号默认管理员账号
 username: admin
 password: 123456
 
-###TODO:
+##TODO:
 [Providing init data with fixtures](https://docs.djangoproject.com/en/1.10/howto/initial-data/)
 
