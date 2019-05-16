@@ -9,5 +9,7 @@ class ImageTransfer(object):
       b64_img = str(b64encode(img.read()), 'utf-8')
     except:
       b64_img = ""
+    finally:
+      img.close()
     return b64_img
     
