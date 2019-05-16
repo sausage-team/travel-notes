@@ -1,8 +1,11 @@
+![django](https://img.shields.io/pypi/pyversions/django.svg)
+![Gitter](https://badges.gitter.im/Join Chat.svg)
+
 ## 描述:
 
 游记服务端
 
-###环境依赖:
+##环境依赖:
 
 1. python == 3.6
 2. pip3 == 9.0.1

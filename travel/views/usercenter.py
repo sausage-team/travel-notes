@@ -21,6 +21,21 @@ class UserCenterBase(UserBase, ArticleBase):
             return True
         return False
 
+class UserCenterUserModify(UserCenterBase, APIView):
+
+    @Authorization
+    def put(self, request):
+        uid = request.session.get('uid', None)
+        user = self.get_user(uid)
+        if (user is None):
+            return FAIL
+
+        ret = UserSerializer(user).data
+        ret.update(request.data['data'])
+        user = User(**ret)
+        user.save()
+        return SUCCESS
+
 class UserCenterArticleList(UserCenterBase, APIView):
     @Authorization
     def get(self, request):
@@ -37,8 +52,10 @@ class UserCenterCollectList(UserCenterBase, APIView):
         uid = request.session.get('uid', None)
         articles = CollectedArticle.objects.filter(user = uid)
         serializer = CollectedArticleSerializer(articles, many=True)
+        collects = serializer.data
+        
         return Response(ArticleWrapper(data = {
-            'articles': serializer.data
+            'articles': [collect['article'] for collect in collects]
         }))
 
 class AdminCenterArticleList(UserCenterBase, APIView):

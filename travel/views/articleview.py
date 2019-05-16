@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from core.bean.wrapper import Wrapper, SUCCESS, FAIL
 from core.decorators.authorization import Authorization
 from travel.serializers import ArticleSerializer, ArticleImageSerializer, PreviewArticleSerializer
-from travel.models import User, Article, ArticleImage, CollectedArticle
+from travel.models import User, Article, ArticleImage, CollectedArticle, ThumbUpArticle
 from travel.bean.constant import ArticleStatus, SortType
 from travel.bean.articlewrapper import ArticleWrapper
 from .imagetransfer import ImageTransfer
@@ -48,6 +48,16 @@ class ArticleBase(object):
         except ArticleImage.DoesNotExist:
             return None
 
+    def get_collect(self, uid, article_id):
+        try:
+            return CollectedArticle.objects.get(user=uid, article_id = article_id)
+        except CollectedArticle.DoesNotExist:
+            return None
+    def get_thumb(self, uid, article_id):
+        try:
+            return ThumbUpArticle.objects.get(user_id=uid, article_id = article_id)
+        except ThumbUpArticle.DoesNotExist:
+            return None
 
 class ArticleView(ArticleBase, APIView):
     """
@@ -129,13 +139,22 @@ class ArticleThumbUp(ArticleView):
         """
         Thumb Up Article
         """
+        uid = request.session.get('uid', None)
         try:
             with transaction.atomic():
                 article = self.get_article(pk)
                 if article is None:
                     return FAIL
-                article.thumb = article.thumb + 1
-                article.save()
+                thumb = self.get_thumb(uid,article.id)
+                print(thumb)
+                if thumb is not None:
+                    thumb.delete()
+                    article.thumb = article.thumb - 1
+                    article.save()
+                else:   
+                    article.thumb = article.thumb + 1
+                    article.save()
+                    ThumbUpArticle.objects.create(user_id=uid, article_id = article.id)
                 return SUCCESS
         except Exception as e:
             logger.error(e)
@@ -151,28 +170,20 @@ class ArticleCollect(ArticleView):
         if article is None:
             return FAIL
         uid = request.session.get('uid', None)
-        CollectedArticle.objects.create(user=uid, article = article)
+        
+        collect = self.get_collect(uid, article.id)
+        if collect is None:
+            print(collect)
+            collect = CollectedArticle(user=uid, article = article)
+            collect.save()
+        else:
+            collect.delete()
         return SUCCESS
-
-    @Authorization
-    def delete(self, request, pk):
-        """
-        Delete Collected Artcile
-        """
-        article = self.get_article(pk)
-        if article is None:
-            return FAIL
-        uid = request.session.get('uid', None)
-        ret = CollectedArticle.objects.filter(user=uid, article=article)
-        if ret:
-            ret.delete()
-            return SUCCESS
-        return FAIL
 
 class ArticleList(ArticleView):
     def get(self, request, offset, limit):
         """
-        Request Article List
+        Request Hot Article List
         """
         params = {
             'status': ArticleStatus.PASS,
@@ -197,7 +208,7 @@ class ArticleList(ArticleView):
     
     def post(self, request, offset, limit):
         """
-        Request Article List by
+        Request Article List
         """
         data = request.data['data']
         search = data['search']
@@ -220,11 +231,37 @@ class ArticleList(ArticleView):
             data = data.order_by('-frequency')
 
         articles = data[offset:offset+limit]
-        serializer = PreviewArticleSerializer(articles, many=True)
+        serial_artilces = PreviewArticleSerializer(articles, many=True).data
+
+        # label by thumb and collect
+        serial_artilces = self._article_label(request, serial_artilces)
+
         return Response(ArticleWrapper(data={
-            'articles':serializer.data,
+            'articles':serial_artilces,
             'count': data.count()
         }))
+    
+    def _article_label (self, request, arts):
+        uid = request.session.get('uid', None)
+        if uid is None:
+            return arts
+        rets = arts
+        for article in rets:
+            if CollectedArticle.objects\
+                .filter(user=uid, article_id = article['id'])\
+                .count():
+                article['is_collected'] = True
+            else:
+                article['is_collected'] = False
+            if ThumbUpArticle.objects.\
+                filter(user_id=uid, article_id=article['id'])\
+                .count():
+                article['is_thumb'] = True
+            else:
+                article['is_thumb'] = False
+        return rets
+
+
 
 class ArticleImageGet(ArticleView):
     def get(self, request, pk):

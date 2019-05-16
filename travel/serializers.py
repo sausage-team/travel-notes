@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from travel.models import User, Article, ArticleImage, CollectedArticle
+from travel.models import User, Article, ArticleImage, CollectedArticle, ThumbUpArticle
 class UserSerializer (serializers.ModelSerializer):
     class Meta:
         model = User
@@ -41,6 +41,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         representation = super(ArticleSerializer, self).to_representation(instance)
         representation['created_time'] = int(round(instance.created_time.timestamp() * 1000))
         representation['updated_time'] = int(round(instance.updated_time.timestamp() * 1000))
+        representation['is_thumb'] = False
+        representation['is_collected'] = False
         return representation
 
 class PreviewArticleSerializer(ArticleSerializer):
@@ -58,6 +60,10 @@ class CollectedArticleSerializer(serializers.ModelSerializer):
         model = CollectedArticle
         fields = ('id','article')
 
+class ThumbArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThumbUpArticle
+        fields =('article_id', 'user_id')
 
 class ArticleImageSerializer(serializers.ModelSerializer):
     img = serializers.CharField(required=False)
