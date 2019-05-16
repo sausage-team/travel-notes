@@ -53,21 +53,6 @@ class UserView(UserBase, APIView):
         return Response(UserWrapper(data=serializer.data))
 
     @Authorization
-    def put(self, request, uid):
-        """
-        Update User By uid
-        """
-        user = self.get_user(uid)
-        if (user is None):
-            return FAIL
-
-        serializer = UserSerializer(user, data=request.data['data'])
-        if serializer.is_valid():
-            serializer.save()
-            return SUCCESS
-        return FAIL
-
-    @Authorization
     def delete(self, request, uid):
         """
         Delete User (Don't Allow)
@@ -94,24 +79,29 @@ class UserRegister(UserView):
             logger.info(serializer.errors)
         return FAIL
 
-class UserCaptcha(UserView):
-    """
-    Captcha
-    """
-    pass
+class UserRestPwd(UserView):
+    @Authorization
+    def put(self, request):
+        data = request.data['data']
+        pwd = data['password']
+        uid = request.session.get('uid', None)
+        user = self.get_user(uid)
+        if user:
+            user.password = pwd
+            user.save()
+            return SUCCESS
+        return FAIL
 
 class UserForgetPwd(UserView):
     """
     Forget Password
     """
     def put(self, request):
-        uid = request.session.get('uid', None)
-        if uid is None:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        user = self.get_user(uid)
         data = request.data['data']
 
-        if user.phone == data['phone']:
+        username  = data['username']
+        user = self.get_user_by_name(username)
+        if user is not None and user.phone == data['phone']:
             user.password = data['password']
             user.save()
             return SUCCESS
@@ -144,4 +134,4 @@ class UserLogout(UserView):
             request.session['uid'] = None
             request.session.clear()
             return SUCCESS
-        return FAIL
+        return SUCCESS

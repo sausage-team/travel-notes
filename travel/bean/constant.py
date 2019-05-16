@@ -13,6 +13,10 @@ class ArticleStatus(object):
     WAIT = 1
     PASS = 2
 
+class SortType(object):
+    THUMB = 1,
+    FREQ = 2
+
 defaultIcon = ''
 with open(os.path.join(assets_path, 'icon.png'), 'rb') as fin:
     defaultIcon = str(base64.b64encode(fin.read()), 'utf-8')

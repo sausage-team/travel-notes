@@ -1,8 +1,11 @@
+![django](https://img.shields.io/pypi/pyversions/django.svg)
+![Gitter](https://badges.gitter.im/Join Chat.svg)
+
 ## 描述:
 
 游记服务端
 
-###环境依赖:
+##环境依赖:
 
 1. python == 3.6
 2. pip3 == 9.0.1
@@ -15,7 +18,8 @@
 1.  `pip install -r requirements.txt`
 2.  `docker-compose up -d`
 3.  `python manage.py makemigrations`
-4.  `python manage.py migrate` 这一步如果报错无视
+4.  `python manage.py migrate`
+5.  `python manage.py loaddata user`
 5.  启动服务 `python manage.py runserver 0.0.0.0:8000`
 
 ## 默认管理员账号
